@@ -1,0 +1,91 @@
+Ejercicio 1
+
+int main()
+{
+	(%L0)a = -18500;
+	(%L1)b = -19600;
+	
+	if(a!=b)
+	{
+		a = b + 5;
+	}
+	else
+	{
+		return a;
+	}
+}
+
+pasajo los numeros negativos a binarios
+
+-18500 =  	00000000000000000100100001000100   //18500 binario positivo en 32 bits
+			11111111111111111011011110111011   // cambio valores
+						                   1   // sumo 1
+		R/  11111111111111111011011110111100
+
+					  1111111111111111101101   //tomo los primero 22 bits de izquierda a derecha
+					  0000000000000000010010   // cambio valores
+										   1   // sumo 1
+					  0000000000000000010011 = 19 //En la instruccion sparc v8 se pone negativo se tomo los primero 22 bits de la conversion 1 a 2
+			  
+			                      
+-19600 =    00000000000000000100110010010000	//19600 binario positivo en 32 bits
+            11111111111111111011001101101111    // cambio valores
+										   1    //sumo 1
+			11111111111111111011001101110000
+			
+					  1111111111111111101100    //tomo los primero 22 bits de izquierda a derecha
+					  0000000000000000010011    //cambio valores
+                                           1    //sumo 1
+                      0000000000000000010100 = 20 //En la instruccion sparc v8 se pone negativo se tomo los primero 22 bits de la conversion 1 a 2   										   
+										   
+								  
+Codigo ensamblador "Arquitectura sparc v8"
+
+0x0000	SETHI -19  %L0;
+0x0004	OR    %L0, 956, %L0;
+0x0008  SETHI -20  %L1
+0x000C  OR    %L1, 880, %L1;
+0x0010  CMP   %L0  %L1;
+0x0014  BE     a   FALSE
+0x0018  ADD   %L1, 5,   %L0;
+0x001C  BA    EXIT
+
+FALSE
+0x0020  MOV   %L0  %O0;
+EXIT
+0x0024  NOP
+
+**********************************************************************************************************************
+Ejercicio 2
+
+int main()
+{
+	int (%L0)i = 5;
+	int (%L1)b[3] = 33;
+	
+	if((b[3]- 145) > i)
+	{
+		return 4 + i;
+	}
+	else
+	{
+		return i;
+	}
+}
+
+Codigo ensamblador "Arquitectura sparc v8"
+
+0x0000	MOV	5				 %L0 
+0x0004	ST  33				(%L1 + (3*4))
+0x0008  LD	(%L1 + (3*4))	 %L1
+0x000C  SUB %L1 			 145			%L1
+0x0010  CMP	%L1 			 i
+0x0014  BL  a	             FALSE			 				
+0x0018  ADD	%L0				 4				%L0
+0x001C  MOV	%L0				 %O0
+0x0020  BA	a				 EXIT
+
+FALSE
+0x0024  MOV	%L0				 %O0
+EXIT
+0x0028  NOP
